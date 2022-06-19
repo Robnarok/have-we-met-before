@@ -1,8 +1,7 @@
 # have-we-met-before
 
-| :warning: WARNING          |
-|:---------------------------|
-| This complete tool is still work in Progress. It may not work      |
+> **WARNING**
+> This complete tool is still work in Progress. It may not work     
 
 This is yet another short Programm in GO for League of Legends. Its purpose is
 to find out if you already played a game with someone... It only checks the last
