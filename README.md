@@ -55,6 +55,9 @@ $ export APIKEY="XXX"
 $ export SUMMONER1="XXX"
 $ export SUMMONER2="XXX"
 
+# Get the dependencies
+$ go get .
+
 # Run the Application
 $ go run .
 
