@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -25,6 +26,19 @@ func main() {
 }
 
 func getCommons(matchlist1, matchlist2 []string) []string {
+	var returnList []string
+	for _, match1 := range matchlist1 {
+		for _, match2 := range matchlist2 {
+			if match1 == match2 {
+				returnList = append(returnList, match1)
+				break
+			}
+		}
+	}
+	for i, v := range returnList {
+		fmt.Printf("%v - %v\n", i, v)
+
+	}
 	return nil
 }
 
@@ -42,7 +56,7 @@ func getSummoners(client golio.Client) (*lol.Summoner, *lol.Summoner) {
 
 func getMatchhistory(client golio.Client, summoner *lol.Summoner) []string {
 
-	matches, err := client.Riot.Match.List(summoner.PUUID, 100, 99)
+	matches, err := client.Riot.Match.List(summoner.PUUID, 0, 100)
 	if err != nil {
 		log.Fatal(err)
 	}
