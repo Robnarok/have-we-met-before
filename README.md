@@ -26,8 +26,11 @@ $ git clone https://github.com/Robnarok/have-we-met-before.git
 # Go into the Repository
 $ cd ./have-we-met-before
 
-# Create config.json File from Template
-$ cp config.template config.json
+# Create .env file from template
+$ cp template.env .env
+
+# Edit .env file to set the APIKEY Variable
+...
 
 # Run with Docker-compose
 $ docker-compose up --build -d
