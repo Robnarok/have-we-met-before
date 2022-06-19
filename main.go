@@ -25,7 +25,7 @@ func main() {
 }
 
 func getCommons(matchlist1, matchlist2 []string) []string {
-
+	return nil
 }
 
 func getSummoners(client golio.Client) (*lol.Summoner, *lol.Summoner) {
