@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/KnutZuidema/golio"
 	"github.com/KnutZuidema/golio/api"
+	"github.com/KnutZuidema/golio/riot/lol"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,6 +16,37 @@ func main() {
 		golio.WithRegion(api.RegionEuropeWest),
 		golio.WithLogger(logrus.New().WithField("foo", "bar")))
 
-	summoner, _ := client.Riot.Summoner.GetByName("DreiAugenFlappe")
-	fmt.Printf("%s is a level %d summoner\n", summoner.Name, summoner.SummonerLevel)
+	summoner1, summoner2 := getSummoners(*client)
+	matchlist1 := getMatchhistory(*client, summoner1)
+	matchlist2 := getMatchhistory(*client, summoner2)
+
+	getCommons(matchlist1, matchlist2)
+
+}
+
+func getCommons(matchlist1, matchlist2 []string) []string {
+
+}
+
+func getSummoners(client golio.Client) (*lol.Summoner, *lol.Summoner) {
+	summonerName1 := os.Getenv("SUMMONER1")
+	summonerName2 := os.Getenv("SUMMONER2")
+
+	summoner1, err := client.Riot.Summoner.GetByName(summonerName1)
+	summoner2, err := client.Riot.Summoner.GetByName(summonerName2)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return summoner2, summoner1
+}
+
+func getMatchhistory(client golio.Client, summoner *lol.Summoner) []string {
+
+	matches, err := client.Riot.Match.List(summoner.PUUID, 100, 99)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return matches
+
 }
