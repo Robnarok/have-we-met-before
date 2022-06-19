@@ -39,6 +39,9 @@ func getCommons(matchlist1, matchlist2 []string) []string {
 		fmt.Printf("%v - %v\n", i, v)
 
 	}
+	if len(returnList) == 0 {
+		fmt.Printf("There is no Match")
+	}
 	return nil
 }
 
