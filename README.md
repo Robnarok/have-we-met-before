@@ -52,6 +52,8 @@ $ cd ./have-we-met-before
 
 # Set Environment Variables
 $ export APIKEY="XXX"
+$ export SUMMONER1="XXX"
+$ export SUMMONER2="XXX"
 
 # Run the Application
 $ go run .
