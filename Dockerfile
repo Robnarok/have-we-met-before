@@ -12,7 +12,7 @@ RUN go build -o /have-we-met-before
 
 ## Run
 
-FROM alpine:latest
+FROM golang:1.17-bullseye AS run
 
 WORKDIR /
 
