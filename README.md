@@ -19,7 +19,9 @@ few Matches and prints MatchIDs of games you both played.
 
 ## How to Use ?
 
-```
+### [Recommended] with Docker
+
+``` bash
 # Clone this Repository
 $ git clone https://github.com/Robnarok/have-we-met-before.git
 
@@ -36,6 +38,24 @@ $ cp template.env .env
 $ docker-compose up --build -d
 
 # Visit Web Interface for the Application and start using
+```
+
+### Without Docker
+
+``` bash
+
+# Clone this Repository
+$ git clone https://github.com/Robnarok/have-we-met-before.git
+
+# Go into the Repository
+$ cd ./have-we-met-before
+
+# Set Environment Variables
+$ export APIKEY="XXX"
+
+# Run the Application
+$ go run .
+
 ```
 
 ## Credits
