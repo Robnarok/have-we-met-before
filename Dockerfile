@@ -17,5 +17,6 @@ FROM golang:1.17-bullseye AS run
 WORKDIR /
 
 COPY --from=build /have-we-met-before /have-we-met-before
+COPY ./Template/index.html ./Template/index.html
 
 ENTRYPOINT ["/have-we-met-before"]
