@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   have-we-met-before:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
