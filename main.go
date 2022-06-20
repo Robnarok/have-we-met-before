@@ -46,23 +46,25 @@ func getCommons(matchlist1, matchlist2 []string) []string {
 	return returnList
 }
 
-func getSummoners(client golio.Client, summonerName1, summonerName2 string) (*lol.Summoner, *lol.Summoner) {
+func getSummoners(client golio.Client, summonerName1, summonerName2 string) (*lol.Summoner, *lol.Summoner, error) {
 	summoner1, err := client.Riot.Summoner.GetByName(summonerName1)
 	if err != nil {
-		log.Fatal(err)
+		log.Warningf("getSummoners(%v): %v", summonerName1, err)
+		return nil, nil, err
 	}
 	summoner2, err := client.Riot.Summoner.GetByName(summonerName2)
 	if err != nil {
-		log.Fatal(err)
+		log.Warningf("getSummoners(%v): %v", summonerName2, err)
+		return nil, nil, err
 	}
-	return summoner2, summoner1
+	return summoner2, summoner1, nil
 }
 
 func getMatchhistory(client golio.Client, summoner *lol.Summoner) []string {
 
 	matches, err := client.Riot.Match.List(summoner.PUUID, 0, 100)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("getMatchhistory: %v", err)
 	}
 
 	return matches
@@ -85,12 +87,18 @@ func matches(w http.ResponseWriter, r *http.Request) {
 		golio.WithLogger(logrus.New().WithField("foo", "bar")))
 	summonerName1 := r.FormValue("summ1")
 	summonerName2 := r.FormValue("summ2")
-	summoner1, summoner2 := getSummoners(*client, summonerName1, summonerName2)
+	log.Infof("Search for %v and %vs mutal Matches", summonerName1, summonerName2)
+	summoner1, summoner2, err := getSummoners(*client, summonerName1, summonerName2)
+	if err != nil {
+		log.Warning(err)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
 	matchlist1 := getMatchhistory(*client, summoner1)
 	matchlist2 := getMatchhistory(*client, summoner2)
 
 	matches := getCommons(matchlist1, matchlist2)
-	err := r.ParseForm()
+	err = r.ParseForm()
 	if err != nil {
 		log.Fatal(err)
 	}
