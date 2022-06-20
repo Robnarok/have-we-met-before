@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"net/http"
 	"os"
 
 	"github.com/KnutZuidema/golio"
@@ -12,17 +14,13 @@ import (
 )
 
 func main() {
-	APIKEY := os.Getenv("APIKEY")
-	client := golio.NewClient(APIKEY,
-		golio.WithRegion(api.RegionEuropeWest),
-		golio.WithLogger(logrus.New().WithField("foo", "bar")))
-
-	summoner1, summoner2 := getSummoners(*client)
-	matchlist1 := getMatchhistory(*client, summoner1)
-	matchlist2 := getMatchhistory(*client, summoner2)
-
-	getCommons(matchlist1, matchlist2)
-
+	http.HandleFunc("/", renderTemplate)
+	http.HandleFunc("/matches", matches)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("Error Starting the HTTP Server : ", err)
+		return
+	}
 }
 
 func getCommons(matchlist1, matchlist2 []string) []string {
@@ -35,14 +33,7 @@ func getCommons(matchlist1, matchlist2 []string) []string {
 			}
 		}
 	}
-	for i, v := range returnList {
-		fmt.Printf("%v - %v\n", i, v)
-
-	}
-	if len(returnList) == 0 {
-		fmt.Printf("There is no Match")
-	}
-	return nil
+	return returnList
 }
 
 func getSummoners(client golio.Client) (*lol.Summoner, *lol.Summoner) {
@@ -65,5 +56,41 @@ func getMatchhistory(client golio.Client, summoner *lol.Summoner) []string {
 	}
 
 	return matches
+
+}
+
+func renderTemplate(w http.ResponseWriter, r *http.Request) {
+	parsedTemplate, _ := template.ParseFiles("Template/index.html")
+	err := parsedTemplate.Execute(w, nil)
+	if err != nil {
+		log.Println("Error executing template :", err)
+		return
+	}
+}
+
+func matches(w http.ResponseWriter, r *http.Request) {
+	APIKEY := os.Getenv("APIKEY")
+	client := golio.NewClient(APIKEY,
+		golio.WithRegion(api.RegionEuropeWest),
+		golio.WithLogger(logrus.New().WithField("foo", "bar")))
+	summoner1, summoner2 := getSummoners(*client)
+	matchlist1 := getMatchhistory(*client, summoner1)
+	matchlist2 := getMatchhistory(*client, summoner2)
+
+	matches := getCommons(matchlist1, matchlist2)
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i, v := range matches {
+		fmt.Fprintf(w, "%v - %v\n", i, v)
+	}
+	if len(matches) == 0 {
+		fmt.Fprintf(w, "There is no Match")
+	} else {
+		fmt.Fprintf(w, "You played %v matches together in the last 100 Games!",
+			len(matches))
+	}
 
 }
