@@ -36,10 +36,7 @@ func getCommons(matchlist1, matchlist2 []string) []string {
 	return returnList
 }
 
-func getSummoners(client golio.Client) (*lol.Summoner, *lol.Summoner) {
-	summonerName1 := os.Getenv("SUMMONER1")
-	summonerName2 := os.Getenv("SUMMONER2")
-
+func getSummoners(client golio.Client, summonerName1, summonerName2 string) (*lol.Summoner, *lol.Summoner) {
 	summoner1, err := client.Riot.Summoner.GetByName(summonerName1)
 	summoner2, err := client.Riot.Summoner.GetByName(summonerName2)
 	if err != nil {
@@ -73,7 +70,9 @@ func matches(w http.ResponseWriter, r *http.Request) {
 	client := golio.NewClient(APIKEY,
 		golio.WithRegion(api.RegionEuropeWest),
 		golio.WithLogger(logrus.New().WithField("foo", "bar")))
-	summoner1, summoner2 := getSummoners(*client)
+	summonerName1 := r.FormValue("lname")
+	summonerName2 := r.FormValue("fname")
+	summoner1, summoner2 := getSummoners(*client, summonerName1, summonerName2)
 	matchlist1 := getMatchhistory(*client, summoner1)
 	matchlist2 := getMatchhistory(*client, summoner2)
 
