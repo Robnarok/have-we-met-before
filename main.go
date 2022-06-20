@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/KnutZuidema/golio"
 	"github.com/KnutZuidema/golio/api"
@@ -16,11 +18,19 @@ import (
 func main() {
 	http.HandleFunc("/", renderTemplate)
 	http.HandleFunc("/matches", matches)
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal("Error Starting the HTTP Server : ", err)
-		return
-	}
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		log.Infof("Webserver is now Running!")
+		err := http.ListenAndServe(":8080", nil)
+		if err != nil {
+			log.Fatal("Error Starting the HTTP Server : ", err)
+			return
+		}
+	}()
+	<-done
+	log.Printf("Server stopped!")
 }
 
 func getCommons(matchlist1, matchlist2 []string) []string {
