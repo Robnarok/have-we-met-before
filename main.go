@@ -18,7 +18,6 @@ import (
 func main() {
 	http.HandleFunc("/", renderTemplate)
 	http.HandleFunc("/matches", matches)
-
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
@@ -49,33 +48,28 @@ func getCommons(matchlist1, matchlist2 []string) []string {
 func getSummoners(client golio.Client, summonerName1, summonerName2 string) (*lol.Summoner, *lol.Summoner, error) {
 	summoner1, err := client.Riot.Summoner.GetByName(summonerName1)
 	if err != nil {
-		log.Warningf("getSummoners(%v): %v", summonerName1, err)
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("getSummoners(%v): %v", summonerName1, err)
 	}
 	summoner2, err := client.Riot.Summoner.GetByName(summonerName2)
 	if err != nil {
-		log.Warningf("getSummoners(%v): %v", summonerName2, err)
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("getSummoners(%v): %v", summonerName2, err)
 	}
-	return summoner2, summoner1, nil
+	return summoner1, summoner2, nil
 }
 
-func getMatchhistory(client golio.Client, summoner *lol.Summoner) []string {
-
+func getMatchhistory(client golio.Client, summoner *lol.Summoner) ([]string, error) {
 	matches, err := client.Riot.Match.List(summoner.PUUID, 0, 100)
 	if err != nil {
-		log.Fatalf("getMatchhistory: %v", err)
+		return nil, fmt.Errorf("getMatchhistory: %v", err)
 	}
-
-	return matches
-
+	return matches, nil
 }
 
 func renderTemplate(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Template/index.html")
 	err := parsedTemplate.Execute(w, nil)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		log.Warningf("Error executing template: %v", err)
 		return
 	}
 }
@@ -90,19 +84,27 @@ func matches(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Search for %v and %vs mutal Matches", summonerName1, summonerName2)
 	summoner1, summoner2, err := getSummoners(*client, summonerName1, summonerName2)
 	if err != nil {
-		log.Warning(err)
+		log.Warningf("matches: %v", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	matchlist1 := getMatchhistory(*client, summoner1)
-	matchlist2 := getMatchhistory(*client, summoner2)
-
+	matchlist1, err := getMatchhistory(*client, summoner1)
+	if err != nil {
+		log.Warningf("matches: %v", err)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	matchlist2, err := getMatchhistory(*client, summoner2)
+	if err != nil {
+		log.Warningf("matches: %v", err)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
 	matches := getCommons(matchlist1, matchlist2)
 	err = r.ParseForm()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	for i, v := range matches {
 		fmt.Fprintf(w, "%v - %v\n", i, v)
 	}
@@ -112,5 +114,4 @@ func matches(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "You played %v matches together in the last 100 Games!",
 			len(matches))
 	}
-
 }
