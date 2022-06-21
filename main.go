@@ -81,6 +81,12 @@ func matches(w http.ResponseWriter, r *http.Request) {
 		golio.WithLogger(logrus.New().WithField("foo", "bar")))
 	summonerName1 := r.FormValue("summ1")
 	summonerName2 := r.FormValue("summ2")
+	if summonerName1 == "" || summonerName2 == "" {
+		log.Warningf("matches: Summername cant be Empty")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
 	log.Infof("Search for %v and %vs mutal Matches", summonerName1, summonerName2)
 	summoner1, summoner2, err := getSummoners(*client, summonerName1, summonerName2)
 	if err != nil {
