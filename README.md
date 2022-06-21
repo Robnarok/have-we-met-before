@@ -9,13 +9,15 @@ few Matches and prints MatchIDs of games you both played.
 
 ## Key Features
 
-- Nothing, everything is still work in Progress
+- Starts a Webserver on Port 8080 with a Simple Form asking for 2 League of
+  Legends Summoner Names
+- Requests the last X Matches from both Summeners and generate a list of mutual
+  Matches
+- Displays the List in a Webpage
 
-## Upcoming Features and Ideas
-
-- Lists all games two players have common in their Match History
-- Accepts the Names via Webinterface, Commandline or API
-- ???
+## Upcoming Features
+- Other Input and Output Options
+- ??
 
 ## How to Use ?
 
