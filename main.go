@@ -11,6 +11,7 @@ import (
 	"github.com/KnutZuidema/golio"
 	"github.com/KnutZuidema/golio/api"
 	"github.com/KnutZuidema/golio/riot/lol"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,6 +19,7 @@ import (
 func main() {
 	http.HandleFunc("/", renderTemplate)
 	http.HandleFunc("/matches", matches)
+	http.Handle("/metrics", promhttp.Handler())
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
